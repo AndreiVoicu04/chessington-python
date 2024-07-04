@@ -37,6 +37,10 @@ class Pawn(Piece):
         current_square = board.find_piece(self)
         possible_moves = []
         if self.player == Player.BLACK:
+            # black pawn reached the bottom of the board, no more legal moves
+            if current_square.row == 0:
+                return []
+
             square_1_in_front = Square.at(current_square.row - 1, current_square.col)
             piece_1_in_front = board.get_piece(square_1_in_front)
             if piece_1_in_front is None:
@@ -49,6 +53,10 @@ class Pawn(Piece):
                 if piece_1_in_front is None and piece_2_in_front is None:
                     possible_moves.append(square_2_in_front)
         else:
+            # white pawn reached the bottom of the board, no more legal moves
+            if current_square.row == 7:
+                return []
+
             square_1_in_front = Square.at(current_square.row + 1, current_square.col)
             piece_1_in_front = board.get_piece(square_1_in_front)
 
