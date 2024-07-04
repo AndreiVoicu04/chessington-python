@@ -35,12 +35,33 @@ class Pawn(Piece):
     """
     def get_available_moves(self, board) -> List[Square]:
         current_square = board.find_piece(self)
+        possible_moves = []
         if self.player == Player.BLACK:
-            square_in_front = Square.at(current_square.row - 1, current_square.col)
-            return [square_in_front]
+            square_1_in_front = Square.at(current_square.row - 1, current_square.col)
+            piece_1_in_front = board.get_piece(square_1_in_front)
+            if piece_1_in_front is None:
+                possible_moves.append(square_1_in_front)
+
+            # pawn did not move yet, it can jump 2 squares
+            if current_square.row == 6:
+                square_2_in_front = Square.at(current_square.row - 2, current_square.col)
+                piece_2_in_front = board.get_piece(square_2_in_front)
+                if piece_1_in_front is None and piece_2_in_front is None:
+                    possible_moves.append(square_2_in_front)
         else:
-            square_in_front = Square.at(current_square.row + 1, current_square.col)
-            return [square_in_front]
+            square_1_in_front = Square.at(current_square.row + 1, current_square.col)
+            piece_1_in_front = board.get_piece(square_1_in_front)
+
+            if piece_1_in_front is None:
+                possible_moves.append(square_1_in_front)
+
+            if current_square.row == 1:
+                square_2_in_front = Square.at(current_square.row + 2, current_square.col)
+                piece_2_in_front = board.get_piece(square_2_in_front)
+                if piece_1_in_front is None and piece_2_in_front is None:
+                    possible_moves.append(square_2_in_front)
+
+        return possible_moves
 
 
 class Knight(Piece):
