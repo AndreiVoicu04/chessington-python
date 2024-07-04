@@ -36,6 +36,7 @@ class Pawn(Piece):
     def get_available_moves(self, board) -> List[Square]:
         current_square = board.find_piece(self)
         possible_moves = []
+        diagonal_capture_squares = []
         if self.player == Player.BLACK:
             # black pawn reached the bottom of the board, no more legal moves
             if current_square.row == 0:
@@ -52,6 +53,10 @@ class Pawn(Piece):
                 piece_2_in_front = board.get_piece(square_2_in_front)
                 if piece_1_in_front is None and piece_2_in_front is None:
                     possible_moves.append(square_2_in_front)
+
+            diagonal_capture_squares.append(Square.at(current_square.row - 1, current_square.col - 1))
+            diagonal_capture_squares.append(Square.at(current_square.row - 1, current_square.col + 1))
+
         else:
             # white pawn reached the bottom of the board, no more legal moves
             if current_square.row == 7:
@@ -68,6 +73,22 @@ class Pawn(Piece):
                 piece_2_in_front = board.get_piece(square_2_in_front)
                 if piece_1_in_front is None and piece_2_in_front is None:
                     possible_moves.append(square_2_in_front)
+
+            diagonal_capture_squares.append(Square.at(current_square.row + 1, current_square.col - 1))
+            diagonal_capture_squares.append(Square.at(current_square.row + 1, current_square.col + 1))
+
+        for square in diagonal_capture_squares:
+            if square.row < 0 or square.row > 7 or square.col < 0 or square.col > 7:
+                continue
+
+            diagonal_piece = board.get_piece(square)
+            if diagonal_piece is None:
+                continue
+
+            if self.player == diagonal_piece.player:
+                continue
+
+            possible_moves.append(square)
 
         return possible_moves
 
