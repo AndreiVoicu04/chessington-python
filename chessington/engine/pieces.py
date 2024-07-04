@@ -30,52 +30,23 @@ class Piece(ABC):
 
 
 class Pawn(Piece):
-    """
-    A class representing a chess pawn.
-    """
-    def get_available_moves(self, board) -> List[Square]:
-        current_square = board.find_piece(self)
+    def get_available_moves_single_color(self, board: Board, square_1_in_front, square_2_in_front) -> List[Square]:
         possible_moves = []
         diagonal_capture_squares = []
-        if self.player == Player.BLACK:
-            # black pawn reached the bottom of the board, no more legal moves
-            if current_square.row == 0:
-                return []
+        current_square = board.find_piece(self)
 
-            square_1_in_front = Square.at(current_square.row - 1, current_square.col)
-            piece_1_in_front = board.get_piece(square_1_in_front)
-            if piece_1_in_front is None:
-                possible_moves.append(square_1_in_front)
+        piece_1_in_front = board.get_piece(square_1_in_front)
+        if piece_1_in_front is None:
+            possible_moves.append(square_1_in_front)
 
-            # pawn did not move yet, it can jump 2 squares
-            if current_square.row == 6:
-                square_2_in_front = Square.at(current_square.row - 2, current_square.col)
-                piece_2_in_front = board.get_piece(square_2_in_front)
-                if piece_1_in_front is None and piece_2_in_front is None:
-                    possible_moves.append(square_2_in_front)
+        # pawn did not move yet, it can jump 2 squares
+        if current_square.row == 6 and self.player == Player.BLACK or current_square.row == 1 and self.player == Player.WHITE:
+            piece_2_in_front = board.get_piece(square_2_in_front)
+            if piece_1_in_front is None and piece_2_in_front is None:
+                possible_moves.append(square_2_in_front)
 
-            diagonal_capture_squares.append(Square.at(current_square.row - 1, current_square.col - 1))
-            diagonal_capture_squares.append(Square.at(current_square.row - 1, current_square.col + 1))
-
-        else:
-            # white pawn reached the bottom of the board, no more legal moves
-            if current_square.row == 7:
-                return []
-
-            square_1_in_front = Square.at(current_square.row + 1, current_square.col)
-            piece_1_in_front = board.get_piece(square_1_in_front)
-
-            if piece_1_in_front is None:
-                possible_moves.append(square_1_in_front)
-
-            if current_square.row == 1:
-                square_2_in_front = Square.at(current_square.row + 2, current_square.col)
-                piece_2_in_front = board.get_piece(square_2_in_front)
-                if piece_1_in_front is None and piece_2_in_front is None:
-                    possible_moves.append(square_2_in_front)
-
-            diagonal_capture_squares.append(Square.at(current_square.row + 1, current_square.col - 1))
-            diagonal_capture_squares.append(Square.at(current_square.row + 1, current_square.col + 1))
+        diagonal_capture_squares.append(Square.at(square_1_in_front.row, current_square.col - 1))
+        diagonal_capture_squares.append(Square.at(square_1_in_front.row, current_square.col + 1))
 
         for square in diagonal_capture_squares:
             if square.row < 0 or square.row > 7 or square.col < 0 or square.col > 7:
@@ -89,6 +60,34 @@ class Pawn(Piece):
                 continue
 
             possible_moves.append(square)
+
+        return possible_moves
+    """
+    A class representing a chess pawn.
+    """
+    def get_available_moves(self, board) -> List[Square]:
+        current_square = board.find_piece(self)
+        possible_moves = []
+
+        # black pawn reached the bottom of the board, no more legal moves
+        if self.player == Player.BLACK and current_square.row == 0:
+            return []
+
+        # white pawn reached the bottom of the board, no more legal moves
+        if self.player == Player.WHITE and current_square.row == 7:
+            return []
+
+        if self.player == Player.BLACK:
+            square_1_in_front = Square.at(current_square.row - 1, current_square.col)
+            square_2_in_front = Square.at(current_square.row - 2, current_square.col)
+
+            possible_moves = self.get_available_moves_single_color(board, square_1_in_front, square_2_in_front)
+
+        else:
+            square_1_in_front = Square.at(current_square.row + 1, current_square.col)
+            square_2_in_front = Square.at(current_square.row + 2, current_square.col)
+
+            possible_moves = self.get_available_moves_single_color(board, square_1_in_front, square_2_in_front)
 
         return possible_moves
 
