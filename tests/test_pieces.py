@@ -253,20 +253,20 @@ class TestPawns:
         pawn_square = Square.at(3, 4)
         board.set_piece(pawn_square, pawn)
 
-        enemy1 = Pawn(Player.BLACK)
-        enemy1_square = Square.at(4, 5)
-        board.set_piece(enemy1_square, enemy1)
+        enemy_right = Pawn(Player.BLACK)
+        enemy_right_square = Square.at(4, 5)
+        board.set_piece(enemy_right_square, enemy_right)
 
-        enemy2 = Pawn(Player.BLACK)
-        enemy2_square = Square.at(4, 3)
-        board.set_piece(enemy2_square, enemy2)
+        enemy_left = Pawn(Player.BLACK)
+        enemy_left_square = Square.at(4, 3)
+        board.set_piece(enemy_left_square, enemy_left)
 
         # Act
         moves = pawn.get_available_moves(board)
 
         # Assert
-        assert enemy1_square in moves
-        assert enemy2_square in moves
+        assert enemy_right_square in moves
+        assert enemy_left_square in moves
 
     @staticmethod
     def test_black_pawns_can_capture_diagonally():
@@ -277,20 +277,20 @@ class TestPawns:
         pawn_square = Square.at(3, 4)
         board.set_piece(pawn_square, pawn)
 
-        enemy1 = Pawn(Player.WHITE)
-        enemy1_square = Square.at(2, 5)
-        board.set_piece(enemy1_square, enemy1)
+        enemy_right = Pawn(Player.WHITE)
+        enemy_right_square = Square.at(2, 5)
+        board.set_piece(enemy_right_square, enemy_right)
 
-        enemy2 = Pawn(Player.WHITE)
-        enemy2_square = Square.at(2, 3)
-        board.set_piece(enemy2_square, enemy2)
+        enemy_left = Pawn(Player.WHITE)
+        enemy_left_square = Square.at(2, 3)
+        board.set_piece(enemy_left_square, enemy_left)
 
         # Act
         moves = pawn.get_available_moves(board)
 
         # Assert
-        assert enemy1_square in moves
-        assert enemy2_square in moves
+        assert enemy_right_square in moves
+        assert enemy_left_square in moves
 
     @staticmethod
     def test_white_pawns_cannot_move_diagonally_except_to_capture():
