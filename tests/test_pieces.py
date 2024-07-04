@@ -1,6 +1,7 @@
 from chessington.engine.board import Board
 from chessington.engine.data import Player, Square
-from chessington.engine.pieces import Pawn
+from chessington.engine.pieces import Pawn, King
+
 
 class TestPawns:
 
@@ -330,4 +331,40 @@ class TestPawns:
 
         # Assert
         assert Square.at(2, 3) not in moves
+        assert Square.at(2, 5) not in moves
+
+    @staticmethod
+    def test_white_pawn_cannot_capture_black_king():
+
+        # Arrange
+        board = Board.empty()
+        pawn = Pawn(Player.WHITE)
+        pawn_square = Square.at(3, 4)
+        board.set_piece(pawn_square, pawn)
+
+        king = King(Player.BLACK)
+        king_square = Square.at(4, 5)
+        board.set_piece(king_square, king)
+
+        # Act
+        moves = pawn.get_available_moves(board)
+
+        # Assert
+        assert Square.at(4, 5) not in moves
+
+    def test_black_pawn_cannot_capture_white_king(self):
+        # Arrange
+        board = Board.empty()
+        pawn = Pawn(Player.BLACK)
+        pawn_square = Square.at(3, 4)
+        board.set_piece(pawn_square, pawn)
+
+        king = King(Player.WHITE)
+        king_square = Square.at(2, 5)
+        board.set_piece(king_square, king)
+
+        # Act
+        moves = pawn.get_available_moves(board)
+
+        # Assert
         assert Square.at(2, 5) not in moves

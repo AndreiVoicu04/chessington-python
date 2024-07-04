@@ -59,6 +59,9 @@ class Pawn(Piece):
             if self.player == diagonal_piece.player:
                 continue
 
+            if isinstance(diagonal_piece, King):
+                continue
+
             possible_moves.append(square)
 
         return possible_moves
