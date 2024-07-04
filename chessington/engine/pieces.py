@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from chessington.engine.board import Board
 
+BOARD_SIZE = 8
+
 class Piece(ABC):
     """
     An abstract base class from which all pieces inherit.
@@ -13,6 +15,9 @@ class Piece(ABC):
 
     def __init__(self, player: Player):
         self.player = player
+
+        self.BLACK_PAWNS_STARTING_ROW = 6
+        self.WHITE_PAWNS_STARTING_ROW = 1
 
     @abstractmethod
     def get_available_moves(self, board: Board) -> List[Square]:
@@ -28,6 +33,10 @@ class Piece(ABC):
         current_square = board.find_piece(self)
         board.move_piece(current_square, new_square)
 
+    @staticmethod
+    def is_in_bounds(square: Square) -> bool:
+        return BOARD_SIZE > square.row >= 0 and BOARD_SIZE > square.col >= 0
+
 
 class Pawn(Piece):
     def get_available_moves_single_color(self, board: Board, square_1_in_front, square_2_in_front) -> List[Square]:
@@ -40,7 +49,8 @@ class Pawn(Piece):
             possible_moves.append(square_1_in_front)
 
         # pawn did not move yet, it can jump 2 squares
-        if current_square.row == 6 and self.player == Player.BLACK or current_square.row == 1 and self.player == Player.WHITE:
+        if (current_square.row == self.BLACK_PAWNS_STARTING_ROW and self.player == Player.BLACK
+                or current_square.row == self.WHITE_PAWNS_STARTING_ROW and self.player == Player.WHITE):
             piece_2_in_front = board.get_piece(square_2_in_front)
             if piece_1_in_front is None and piece_2_in_front is None:
                 possible_moves.append(square_2_in_front)
@@ -49,7 +59,7 @@ class Pawn(Piece):
         diagonal_capture_squares.append(Square.at(square_1_in_front.row, current_square.col + 1))
 
         for square in diagonal_capture_squares:
-            if square.row < 0 or square.row > 7 or square.col < 0 or square.col > 7:
+            if not Piece.is_in_bounds(square):
                 continue
 
             diagonal_piece = board.get_piece(square)
@@ -65,6 +75,15 @@ class Pawn(Piece):
             possible_moves.append(square)
 
         return possible_moves
+
+    def is_pawn_on_last_row(self, current_square: Square) -> bool:
+        current_row = current_square.row
+        match self.player:
+            case Player.BLACK:
+                return current_row == self.WHITE_PAWNS_STARTING_ROW - 1
+            case Player.WHITE:
+                return current_row == self.BLACK_PAWNS_STARTING_ROW + 1
+
     """
     A class representing a chess pawn.
     """
@@ -73,11 +92,7 @@ class Pawn(Piece):
         possible_moves = []
 
         # black pawn reached the bottom of the board, no more legal moves
-        if self.player == Player.BLACK and current_square.row == 0:
-            return []
-
-        # white pawn reached the bottom of the board, no more legal moves
-        if self.player == Player.WHITE and current_square.row == 7:
+        if self.is_pawn_on_last_row(current_square):
             return []
 
         if self.player == Player.BLACK:
