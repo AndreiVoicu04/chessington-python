@@ -87,6 +87,7 @@ class Pawn(Piece):
                 return current_row == self.WHITE_PAWNS_STARTING_ROW - 1
             case Player.WHITE:
                 return current_row == self.BLACK_PAWNS_STARTING_ROW + 1
+
     def get_available_moves(self, board) -> List[Square]:
         current_square = board.find_piece(self)
         possible_moves = []
@@ -146,140 +147,83 @@ class Knight(Piece):
         return possible_moves
 
 
-class Bishop(Piece):
+class StraightLineMovingPiece(Piece):
+    """
+    A class representing a piece which moves in a straight line:
+    rook, bishop, queen
+    """
+
+    def get_directions(self):
+        return []
+
+    def update_possible_next_square(self, possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
+        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
+
+    def get_available_moves(self, board):
+        current_square = board.find_piece(self)
+        directions = self.get_directions()
+        possible_moves = []
+
+        for (dir_row, dir_col) in directions:
+            base_row = current_square.row + dir_row
+            base_col = current_square.col + dir_col
+
+            possible_next_square = Square.at(base_row, base_col)
+            while self.is_in_bounds(possible_next_square):
+                current_piece = board.get_piece(possible_next_square)
+
+                if current_piece is not None:
+                    if current_piece.player == self.player:
+                        break
+
+                    if isinstance(current_piece, King):
+                        break
+
+                    possible_moves.append(possible_next_square)
+                    break
+
+                possible_moves.append(possible_next_square)
+                possible_next_square = self.update_possible_next_square(possible_next_square, dir_row, dir_col)
+
+        return possible_moves
+
+
+class Bishop(StraightLineMovingPiece):
     """
     A class representing a chess bishop.
     """
 
-    @staticmethod
-    def get_directions():
+    def get_directions(self):
         return [
             (1, -1), (1, 1),
             (-1, -1), (-1, 1)
         ]
 
-    @staticmethod
-    def update_possible_next_square(possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
-        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
 
-    def get_available_moves(self, board):
-        current_square = board.find_piece(self)
-        directions = self.get_directions()
-        possible_moves = []
-
-        for (dir_row, dir_col) in directions:
-            base_row = current_square.row + dir_row
-            base_col = current_square.col + dir_col
-
-            possible_next_square = Square.at(base_row, base_col)
-            while self.is_in_bounds(possible_next_square):
-                current_piece = board.get_piece(possible_next_square)
-
-                if current_piece is not None:
-                    if current_piece.player == self.player:
-                        break
-
-                    if isinstance(current_piece, King):
-                        break
-
-                    possible_moves.append(possible_next_square)
-                    break
-
-                possible_moves.append(possible_next_square)
-                possible_next_square = Bishop.update_possible_next_square(possible_next_square, dir_row, dir_col)
-
-        return possible_moves
-
-
-class Rook(Piece):
+class Rook(StraightLineMovingPiece):
     """
     A class representing a chess rook.
     """
 
-    @staticmethod
-    def get_directions():
+    def get_directions(self):
         return [
             (1, 0), (0, 1),
             (-1, 0), (0, -1)
         ]
 
-    @staticmethod
-    def update_possible_next_square(possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
-        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
 
-    def get_available_moves(self, board):
-        current_square = board.find_piece(self)
-        directions = self.get_directions()
-        possible_moves = []
-
-        for (dir_row, dir_col) in directions:
-            base_row = current_square.row + dir_row
-            base_col = current_square.col + dir_col
-
-            possible_next_square = Square.at(base_row, base_col)
-            while self.is_in_bounds(possible_next_square):
-                current_piece = board.get_piece(possible_next_square)
-
-                if current_piece is not None:
-                    if current_piece.player == self.player:
-                        break
-
-                    if isinstance(current_piece, King):
-                        break
-
-                    possible_moves.append(possible_next_square)
-                    break
-
-                possible_moves.append(possible_next_square)
-                possible_next_square = Rook.update_possible_next_square(possible_next_square, dir_row, dir_col)
-
-        return possible_moves
-
-class Queen(Piece):
+class Queen(StraightLineMovingPiece):
     """
     A class representing a chess queen.
     """
 
-    @staticmethod
-    def get_directions():
+    def get_directions(self):
         return [
             (1, 0), (0, 1),
             (-1, 0), (0, -1),
             (1, -1), (1, 1),
             (-1, -1), (-1, 1)
         ]
-
-    @staticmethod
-    def update_possible_next_square(possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
-        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
-
-    def get_available_moves(self, board):
-        current_square = board.find_piece(self)
-        directions = self.get_directions()
-        possible_moves = []
-
-        for (dir_row, dir_col) in directions:
-            base_row = current_square.row + dir_row
-            base_col = current_square.col + dir_col
-
-            possible_next_square = Square.at(base_row, base_col)
-            while self.is_in_bounds(possible_next_square):
-                current_piece = board.get_piece(possible_next_square)
-
-                if current_piece is not None:
-                    if current_piece.player == self.player:
-                        break
-
-                    if isinstance(current_piece, King):
-                        break
-
-                    possible_moves.append(possible_next_square)
-                    break
-
-                possible_moves.append(possible_next_square)
-                possible_next_square = Queen.update_possible_next_square(possible_next_square, dir_row, dir_col)
-
-        return possible_moves
 
 
 class King(Piece):
