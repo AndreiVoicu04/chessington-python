@@ -196,9 +196,44 @@ class Rook(Piece):
     A class representing a chess rook.
     """
 
-    def get_available_moves(self, board):
-        return []
+    @staticmethod
+    def get_directions():
+        return [
+            (1, 0), (0, 1),
+            (-1, 0), (0, -1)
+        ]
 
+    @staticmethod
+    def update_possible_next_square(possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
+        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
+
+    def get_available_moves(self, board):
+        current_square = board.find_piece(self)
+        directions = self.get_directions()
+        possible_moves = []
+
+        for (dir_row, dir_col) in directions:
+            base_row = current_square.row + dir_row
+            base_col = current_square.col + dir_col
+
+            possible_next_square = Square.at(base_row, base_col)
+            while self.is_in_bounds(possible_next_square):
+                current_piece = board.get_piece(possible_next_square)
+
+                if current_piece is not None:
+                    if current_piece.player == self.player:
+                        break
+
+                    if isinstance(current_piece, King):
+                        break
+
+                    possible_moves.append(possible_next_square)
+                    break
+
+                possible_moves.append(possible_next_square)
+                possible_next_square = Rook.update_possible_next_square(possible_next_square, dir_row, dir_col)
+
+        return possible_moves
 
 class Queen(Piece):
     """
