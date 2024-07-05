@@ -37,6 +37,19 @@ class Piece(ABC):
     def is_in_bounds(square: Square) -> bool:
         return BOARD_SIZE > square.row >= 0 and BOARD_SIZE > square.col >= 0
 
+    def is_square_in_check(self, board: Board, target_square: Square) -> bool:
+        for rank in board.board:
+            for current_piece in rank:
+
+                if current_piece is None or current_piece.player == self.player:
+                    continue
+                # TODO cred ca trebuie facut ceva special cu regele, de vazut daca ajunge loop infinit
+                current_piece_moves = current_piece.get_available_moves(board)
+                if target_square in current_piece_moves:
+                    return True
+
+        return False
+
 
 class Pawn(Piece):
     """
@@ -231,5 +244,32 @@ class King(Piece):
     A class representing a chess king.
     """
 
+    def get_directions(self):
+        return [
+            (1, -1), (1, 0), (1, 1), (0, -1),
+            (0, 1), (-1, -1), (-1, 0), (-1, 1)
+        ]
+
     def get_available_moves(self, board):
-        return []
+        possible_moves = []
+        current_square = board.find_piece(self)
+        directions = self.get_directions()
+
+        for (dir_row, dir_col) in directions:
+            possible_row = current_square.row + dir_row
+            possible_col = current_square.col + dir_col
+            possible_next_square = Square.at(possible_row, possible_col)
+
+            if not Piece.is_in_bounds(possible_next_square):
+                continue
+
+            if self.is_square_in_check(board, possible_next_square):
+                continue
+
+            piece_in_possible_next_square = board.get_piece(possible_next_square)
+            if piece_in_possible_next_square is not None and piece_in_possible_next_square.player == self.player:
+                continue
+
+            possible_moves.append(possible_next_square)
+
+        return possible_moves

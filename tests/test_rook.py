@@ -193,30 +193,3 @@ class TestRook():
         assert len(moves) == 11
         assert Square.at(row + 1, col) in moves
         assert Square.at(king_square.row, king_square.col) not in moves
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
