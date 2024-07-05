@@ -39,6 +39,10 @@ class Piece(ABC):
 
 
 class Pawn(Piece):
+    """
+    A class representing a chess pawn.
+    """
+
     def get_available_moves_single_color(self, board: Board, square_1_in_front, square_2_in_front) -> List[Square]:
         possible_moves = []
         diagonal_capture_squares = []
@@ -83,10 +87,6 @@ class Pawn(Piece):
                 return current_row == self.WHITE_PAWNS_STARTING_ROW - 1
             case Player.WHITE:
                 return current_row == self.BLACK_PAWNS_STARTING_ROW + 1
-
-    """
-    A class representing a chess pawn.
-    """
     def get_available_moves(self, board) -> List[Square]:
         current_square = board.find_piece(self)
         possible_moves = []
@@ -111,6 +111,9 @@ class Pawn(Piece):
 
 
 class Knight(Piece):
+    """
+    A class representing a chess knight.
+    """
 
     @staticmethod
     def get_directions():
@@ -119,9 +122,6 @@ class Knight(Piece):
             (-1, -2), (-2, -1), (-2, 1), (-1, 2)
         ]
 
-    """
-    A class representing a chess knight.
-    """
     def get_available_moves(self, board):
         current_square = board.find_piece(self)
         directions = self.get_directions()
@@ -151,8 +151,44 @@ class Bishop(Piece):
     A class representing a chess bishop.
     """
 
+    @staticmethod
+    def get_directions():
+        return [
+            (1, -1), (1, 1),
+            (-1, -1), (-1, 1)
+        ]
+
+    @staticmethod
+    def update_possible_next_square(possible_next_square: Square, dir_row: int, dir_col: int) -> Square:
+        return Square.at(possible_next_square.row + dir_row, possible_next_square.col + dir_col)
+
     def get_available_moves(self, board):
-        return []
+        current_square = board.find_piece(self)
+        directions = self.get_directions()
+        possible_moves = []
+
+        for (dir_row, dir_col) in directions:
+            base_row = current_square.row + dir_row
+            base_col = current_square.col + dir_col
+
+            possible_next_square = Square.at(base_row, base_col)
+            while self.is_in_bounds(possible_next_square):
+                current_piece = board.get_piece(possible_next_square)
+
+                if current_piece is not None:
+                    if current_piece.player == self.player:
+                        break
+
+                    if isinstance(current_piece, King):
+                        break
+
+                    possible_moves.append(possible_next_square)
+                    break
+
+                possible_moves.append(possible_next_square)
+                possible_next_square = Bishop.update_possible_next_square(possible_next_square, dir_row, dir_col)
+
+        return possible_moves
 
 
 class Rook(Piece):
