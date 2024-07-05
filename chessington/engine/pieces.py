@@ -111,12 +111,39 @@ class Pawn(Piece):
 
 
 class Knight(Piece):
+
+    @staticmethod
+    def get_directions():
+        return [
+            (1, -2), (2, -1), (2, 1), (1, 2),
+            (-1, -2), (-2, -1), (-2, 1), (-1, 2)
+        ]
+
     """
     A class representing a chess knight.
     """
-
     def get_available_moves(self, board):
-        return []
+        current_square = board.find_piece(self)
+        directions = self.get_directions()
+        possible_moves = []
+
+        for direction in directions:
+            possible_next_square = Square.at(current_square.row + direction[0], current_square.col + direction[1])
+
+            if not self.is_in_bounds(possible_next_square):
+                continue
+
+            possible_next_square_piece = board.get_piece(possible_next_square)
+            if possible_next_square_piece is not None:
+                if self.player == possible_next_square_piece.player:
+                    continue
+
+                if isinstance(possible_next_square_piece, King):
+                    continue
+
+            possible_moves.append(possible_next_square)
+
+        return possible_moves
 
 
 class Bishop(Piece):
