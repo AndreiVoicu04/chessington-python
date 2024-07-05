@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from chessington.engine.board import Board
 
 BOARD_SIZE = 8
-
+checking_if_square_is_in_check = False
 class Piece(ABC):
     """
     An abstract base class from which all pieces inherit.
@@ -38,6 +38,7 @@ class Piece(ABC):
         return BOARD_SIZE > square.row >= 0 and BOARD_SIZE > square.col >= 0
 
     def is_square_in_check(self, board: Board, target_square: Square) -> bool:
+        global checking_if_square_is_in_check
         for rank in board.board:
             for current_piece in rank:
 
